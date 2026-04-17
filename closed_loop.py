@@ -10,6 +10,9 @@ import pickle
 import json
 import pickle
 from sim.utils.launch_ad import launch, check_alive
+from sim.utils.config_loader import load_closed_loop_cfg
+from sim.utils.ad_config import resolve_ad_launch_env, resolve_ad_path
+from sim.utils.closed_loop_runtime import build_frame_record
 from omegaconf import OmegaConf
 import open3d as o3d
 from sim.utils.score_calculator import hugsim_evaluate
@@ -70,23 +73,11 @@ def create_gym_env(cfg, output):
 
         else:  # AD Side Crushed
             done = True
+            continue
 
-        imu_plan_traj = plan_traj[:, [1, 0]]
-        imu_plan_traj[:, 1] *= -1
-        global_traj = traj_transform_to_global(imu_plan_traj, info['ego_box'])
-        save_data['frames'].append({
-            'time_stamp': info['timestamp'],
-            'is_key_frame': True,
-            'ego_box': info['ego_box'],
-            'obj_boxes': info['obj_boxes'],
-            'obj_names': ['car' for _ in info['obj_boxes']],
-            'planned_traj': {
-                'traj': global_traj,
-                'timestep': 0.5
-            },
-            'collision': info['collision'],
-            'rc': info['rc']
-        })
+        frame_record = build_frame_record(plan_traj, info)
+        if frame_record is not None:
+            save_data['frames'].append(frame_record)
 
     with open(obs_pipe, "wb") as pipe:
         pipe.write(pickle.dumps('Done'))
@@ -116,35 +107,19 @@ if __name__ == "__main__":
     parser.add_argument('--ad_cuda', default="1")
     args = parser.parse_args()
 
-    scenario_config = OmegaConf.load(args.scenario_path)
-    base_config = OmegaConf.load(args.base_path)
-    camera_config = OmegaConf.load(args.camera_path)
-    kinematic_config = OmegaConf.load(args.kinematic_path)
-    cfg = OmegaConf.merge(
-        {"scenario": scenario_config},
-        {"base": base_config},
-        {"camera": camera_config},
-        {"kinematic": kinematic_config}
+    cfg, output = load_closed_loop_cfg(
+        scenario_path=args.scenario_path,
+        base_path=args.base_path,
+        camera_path=args.camera_path,
+        kinematic_path=args.kinematic_path,
+        ad=args.ad,
     )
-    cfg.base.output_dir = cfg.base.output_dir + args.ad
-
-    model_path = os.path.join(cfg.base.model_base, cfg.scenario.scene_name)
-    model_config = OmegaConf.load(os.path.join(model_path, 'cfg.yaml'))
-    cfg.update(model_config)
-    
-    output = os.path.join(cfg.base.output_dir, cfg.scenario.scene_name+"_"+cfg.scenario.mode)
     os.makedirs(output, exist_ok=True)
 
-    if args.ad == 'uniad':
-        ad_path = cfg.base.uniad_path
-    elif args.ad == 'vad':
-        ad_path = cfg.base.vad_path
-    elif args.ad == 'ltf':
-        ad_path = cfg.base.ltf_path
-    else:
-        raise NotImplementedError
-    
-    process = launch(ad_path, args.ad_cuda, output)
+    ad_path = resolve_ad_path(cfg, args.ad)
+    ad_launch_env = resolve_ad_launch_env(cfg, args.ad)
+
+    process = launch(ad_path, args.ad_cuda, output, extra_env=ad_launch_env)
     try:
         create_gym_env(cfg, output)
         check_alive(process)

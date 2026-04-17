@@ -13,3 +13,10 @@ apex
 # pixi environments
 .pixi
 *.egg-info
+ 
+submodules/
+tests/
+outputs/
+
+configs-ori/
+configs/scenarios/

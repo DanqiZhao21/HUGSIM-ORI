@@ -1,15 +1,36 @@
 import subprocess
 import time
 import os
+import shutil
 
 
-def launch(shell_path, cuda_id, output):
+def _resolve_shell():
+    shell_from_env = os.environ.get("SHELL")
+    if shell_from_env and os.path.exists(shell_from_env):
+        return shell_from_env
+
+    for shell_name in ("zsh", "bash", "sh"):
+        shell_path = shutil.which(shell_name)
+        if shell_path is not None:
+            return shell_path
+
+    raise FileNotFoundError("No usable shell found. Install bash/sh or set SHELL.")
+
+
+def launch(shell_path, cuda_id, output, extra_env=None):
     os.makedirs(output, exist_ok=True)
     print(os.path.join(output, 'output.txt'))
     print(shell_path, cuda_id, output)
+    shell_bin = _resolve_shell()
+    child_env = os.environ.copy()
+    if extra_env:
+        child_env.update(extra_env)
     with open(os.path.join(output, 'output.txt'), 'w') as f:
         process = subprocess.Popen(
-            ["zsh", shell_path, cuda_id, output], stdout=f, stderr=f
+            [shell_bin, shell_path, cuda_id, output],
+            stdout=f,
+            stderr=f,
+            env=child_env,
         )
     return process
 

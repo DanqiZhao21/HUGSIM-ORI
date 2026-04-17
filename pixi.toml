@@ -61,14 +61,13 @@ huggingface-hub = ">=0.32.0, <0.33"
 # install from source code
 hugsim-env = { path = "./sim", editable = true }
 simple-knn = { path = "./submodules/simple-knn", editable = false }
-gsplat = { git = "https://github.com/hyzhou404/HUGSIM_splat.git", rev = "main" }
-flow-vis-torch = { git = "https://github.com/ChristophReich1996/Optical-Flow-Visualization-PyTorch", rev = "main" }
-unidepth = { git = "https://github.com/hyzhou404/UniDepth.git", rev = "main" }
-trajdata = { git = "https://github.com/hyzhou404/trajdata.git", rev = "main" }
-tinycudann = { git = "https://github.com/NVlabs/tiny-cuda-nn", rev = "master", subdirectory="bindings/torch" }
-kitti360Scripts = { git = "https://github.com/autonomousvision/kitti360Scripts.git", rev = "master" }
-simple-waymo-open-dataset-reader = { git = "https://github.com/gdlg/simple-waymo-open-dataset-reader.git", rev = "master" }
-pytorch3d = { git = "https://github.com/facebookresearch/pytorch3d.git", rev = "stable" }
-nuscenes-devkit = { git = "https://github.com/hyzhou404/nuscenes-devkit.git", rev = "master"}
+gsplat = { path = "./submodules/HUGSIM_splat", editable = true }
+flow-vis-torch = { path = "./submodules/Optical-Flow-Visualization-PyTorch", editable = true }
+unidepth = { path = "./submodules/UniDepth", editable = true }
+trajdata = { path = "./submodules/trajdata", editable = true }
+tinycudann = { path = "./submodules/tiny-cuda-nn/bindings/torch", editable = false }
+kitti360Scripts = { path = "./submodules/kitti360Scripts", editable = true }
+simple-waymo-open-dataset-reader = { path = "./submodules/simple-waymo-open-dataset-reader", editable = true }
+pytorch3d = { path = "./submodules/pytorch3d", editable = true }
+nuscenes-devkit = { path = "./submodules/nuscenes-devkit", editable = true }
 moviepy = ">=2.2.1, <3"
-

@@ -1,6 +1,13 @@
-realcar_path: /nas/users/hyzhou/PAMI2024/release/3DRealCar
-model_base: /nas/users/hyzhou/PAMI2024/release/ss/scenes/pandaset
-uniad_path: /nas/users/hyzhou/code/UniAD_Sim/tools/e2e.sh
-vad_path: /nas/users/hyzhou/code/VAD_Sim/tools/e2e.sh
-ltf_path: /nas/users/hyzhou/code/navsim/ltf_e2e.sh
-output_dir: /nas/users/hyzhou/PAMI2024/release/outputs/benchmark/out/pandaset_
+realcar_path: /OpenDataset/HUGSIM_data/3DRealCar
+model_base: /OpenDataset/HUGSIM_data/scenes/pandaset
+uniad_path: /root/clone/HUGSIM-ORI/scripts/ad/uniad_e2e.sh
+vad_path: /root/clone/HUGSIM-ORI/scripts/ad/missing_vad_e2e.sh
+ltf_path: /root/clone/NAVSIM/ltf_e2e.sh
+output_dir: /root/clone/HUGSIM-ORI/outputs/benchmark/out/pandaset_
+
+sparsedrive_v2_path: /root/clone/SparseDriveV2-HF/sparsedrive_e2e.sh
+sparsedrive_v2_python: /root/miniconda3/envs/recondreamerNew-rl/bin/python
+sparsedrive_v2_repo: /root/clone/SparseDriveV2-HF
+sparsedrive_v2_ckpt: /root/clone/SparseDriveV2-HF/ckpt/sparsedrive_navsimv2.ckpt
+sparsedrive_v2_pretrain_ckpt: /root/clone/SparseDriveV2-HF/ckpt/sparsedrive_navsimv2.ckpt
+sparsedrive_v2_nuplan_repo: /root/clone/nuplan-devkit

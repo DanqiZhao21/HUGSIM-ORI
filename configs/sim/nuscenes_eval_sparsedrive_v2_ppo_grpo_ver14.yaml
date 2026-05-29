@@ -1,0 +1,21 @@
+realcar_path: /OpenDataset/HUGSIM_data/3DRealCar
+model_base: /OpenDataset/HUGSIM_data/scenes/nuscenes
+uniad_path: /root/clone/HUGSIM-ORI/scripts/ad/uniad_e2e.sh
+uniad_repo: /root/clone/UniAD_SIM
+uniad_conda_env: uniad2.0
+uniad_config: /root/clone/UniAD_SIM/projects/configs/stage2_e2e/base_e2e.py
+uniad_checkpoint: /root/clone/UniAD_SIM/ckpts/uniad_base_e2e.pth
+vad_path: /root/clone/HUGSIM-ORI/scripts/ad/missing_vad_e2e.sh
+ltf_path: /root/clone/NAVSIM/ltf_e2e.sh
+
+sparsedrive_v2_path: /root/clone/SparseDriveV2-HF/sparsedrive_e2e.sh
+sparsedrive_v2_python: /root/miniconda3/envs/recondreamerNew-rl/bin/python
+sparsedrive_v2_repo: /root/clone/SparseDriveV2-HF
+sparsedrive_v2_ckpt: /root/clone/SparseDriveV2-HF/ckpt/20260417_ppo_grpo_ver14_latest.ckpt
+sparsedrive_v2_pretrain_ckpt: /root/clone/SparseDriveV2-HF/ckpt/20260417_ppo_grpo_ver14_latest.ckpt
+sparsedrive_v2_nuplan_repo: /root/clone/nuplan-devkit
+
+output_dir: /root/clone/HUGSIM-ORI/outputs/evaluate/nusc_ppo_grpo_ver14_
+HD_map:
+  path: /OpenDataset/Nuscenes/dataset
+  version: nusc_trainval

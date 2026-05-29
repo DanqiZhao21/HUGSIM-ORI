@@ -10,6 +10,7 @@ from sim.utils.score_calculator import create_rectangle, bg_collision_det
 import os
 import pickle
 from sim.utils.plan import planner, UnifiedMap
+from sim.utils.realcar_path import resolve_realcar_model_path
 from omegaconf import OmegaConf
 import math
 from gaussian_renderer import GaussianModel
@@ -35,7 +36,7 @@ class HUGSimEnv(gymnasium.Env):
         
         plan_list = cfg.scenario.plan_list
         for control_param in plan_list:
-            control_param[5] = os.path.join(cfg.base.realcar_path, control_param[5])
+            control_param[5] = resolve_realcar_model_path(cfg.base.realcar_path, control_param[5])
 
         # read ground infos
         with open(os.path.join(cfg.model_path, 'ground_param.pkl'), 'rb') as f:

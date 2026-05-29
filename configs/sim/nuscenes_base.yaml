@@ -1,6 +1,10 @@
 realcar_path: /OpenDataset/HUGSIM_data/3DRealCar
 model_base: /OpenDataset/HUGSIM_data/scenes/nuscenes
 uniad_path: /root/clone/HUGSIM-ORI/scripts/ad/uniad_e2e.sh
+uniad_repo: /root/clone/UniAD_SIM
+uniad_conda_env: uniad2.0
+uniad_config: /root/clone/UniAD_SIM/projects/configs/stage2_e2e/base_e2e.py
+uniad_checkpoint: /root/clone/UniAD_SIM/ckpts/uniad_base_e2e.pth
 vad_path: /root/clone/HUGSIM-ORI/scripts/ad/missing_vad_e2e.sh
 ltf_path: /root/clone/NAVSIM/ltf_e2e.sh
 

@@ -12,25 +12,25 @@ import pickle
 from sim.utils.launch_ad import launch, check_alive
 from sim.utils.config_loader import load_closed_loop_cfg
 from sim.utils.ad_config import resolve_ad_launch_env, resolve_ad_path
+from sim.utils.closed_loop_io import read_fifo_with_ad_monitor, write_fifo_with_ad_monitor
 from sim.utils.closed_loop_runtime import build_frame_record
+from sim.utils.random_seed import seed_everything
 from omegaconf import OmegaConf
 import open3d as o3d
 from sim.utils.score_calculator import hugsim_evaluate
+from sim.utils.camera_grid_visualization import build_visual_camera_grid
 import numpy as np
 from moviepy import ImageSequenceClip
 
 def to_video(observations, output_path):
     frames = []
     for obs in observations:
-        row1 = np.concatenate([obs['CAM_FRONT_LEFT'], obs['CAM_FRONT'], obs['CAM_FRONT_RIGHT']], axis=1)
-        row2 = np.concatenate([obs['CAM_BACK_RIGHT'], obs['CAM_BACK'], obs['CAM_BACK_LEFT']], axis=1)
-        frame = np.concatenate([row1, row2], axis=0)
-        frames.append(frame)
+        frames.append(build_visual_camera_grid(obs))
     clip = ImageSequenceClip(frames, fps=4)
     clip.write_videofile(output_path)
 
 
-def create_gym_env(cfg, output):
+def create_gym_env(cfg, output, *, ad_process=None, pipe_timeout_seconds=300.0):
 
     env = gymnasium.make('hugsim_env/HUGSim-v0', cfg=cfg, output=output)
 
@@ -58,10 +58,17 @@ def create_gym_env(cfg, output):
 
         print('ego pose', info['ego_pos'])
 
-        with open(obs_pipe, "wb") as pipe:
-            pipe.write(pickle.dumps((obs, info)))
-        with open(plan_pipe, "rb") as pipe:
-            plan_traj = pickle.loads(pipe.read())
+        write_fifo_with_ad_monitor(
+            obs_pipe,
+            (obs, info),
+            process=ad_process,
+            timeout_seconds=pipe_timeout_seconds,
+        )
+        plan_traj = read_fifo_with_ad_monitor(
+            plan_pipe,
+            process=ad_process,
+            timeout_seconds=pipe_timeout_seconds,
+        )
 
         if plan_traj is not None:
             acc, steer_rate = traj2control(plan_traj, info)
@@ -79,8 +86,15 @@ def create_gym_env(cfg, output):
         if frame_record is not None:
             save_data['frames'].append(frame_record)
 
-    with open(obs_pipe, "wb") as pipe:
-        pipe.write(pickle.dumps('Done'))
+    try:
+        write_fifo_with_ad_monitor(
+            obs_pipe,
+            'Done',
+            process=ad_process,
+            timeout_seconds=min(pipe_timeout_seconds, 5.0),
+        )
+    except Exception as exc:
+        print(f"Failed to notify AD process of completion: {exc}")
 
     with open(os.path.join(output, 'data.pkl'), 'wb') as wf:
         pickle.dump([save_data], wf)
@@ -107,6 +121,9 @@ if __name__ == "__main__":
     parser.add_argument('--ad_cuda', default="1")
     args = parser.parse_args()
 
+    seed = seed_everything(os.environ.get("HUGSIM_RANDOM_SEED", "0"))
+    print(f"HUGSIM random seed: {seed}")
+
     cfg, output = load_closed_loop_cfg(
         scenario_path=args.scenario_path,
         base_path=args.base_path,
@@ -120,13 +137,22 @@ if __name__ == "__main__":
     ad_launch_env = resolve_ad_launch_env(cfg, args.ad)
 
     process = launch(ad_path, args.ad_cuda, output, extra_env=ad_launch_env)
+    pipe_timeout_seconds = float(os.environ.get("HUGSIM_PIPE_TIMEOUT_SECONDS", "300"))
+    exit_code = 0
     try:
-        create_gym_env(cfg, output)
+        create_gym_env(cfg, output, ad_process=process, pipe_timeout_seconds=pipe_timeout_seconds)
         check_alive(process)
     except Exception as e:
         import traceback
         traceback.print_exc()
-        process.kill()
+        exit_code = 1
+    finally:
+        if process.poll() is None:
+            process.kill()
+            process.wait()
+
+    if exit_code != 0:
+        raise SystemExit(exit_code)
     
     # # For debug
     # create_gym_env(cfg, output)

@@ -8,8 +8,7 @@ pkill -f 'run_sparsedrive_bridge.py'
 pkill -f 'sparsedrive_e2e.py'
 
 #LFT
-
-CUDA_VISIBLE_DEVICES=0 pixi run python /root/clone/HUGSIM-ORI/closed_loop.py   --scenario_path /root/clone/HUGSIM-ORI/configs/scenarios/nuscenes/scene-0051-easy-00.yaml   --base_path /root/clone/HUGSIM-ORI/configs/sim/nuscenes_base.yaml   --camera_path /root/clone/HUGSIM-ORI/configs/sim/nuscenes_camera.yaml   --kinematic_path /root/clone/HUGSIM-ORI/configs/sim/kinematic.yaml   --ad sparsedrive-v2   --ad_cuda 1
+CUDA_VISIBLE_DEVICES=0 pixi run python /root/clone/HUGSIM-ORI/closed_loop.py   --scenario_path /root/clone/HUGSIM-ORI/configs/scenarios/nuscenes/scene-0038-easy-00.yaml   --base_path /root/clone/HUGSIM-ORI/configs/sim/nuscenes_base.yaml   --camera_path /root/clone/HUGSIM-ORI/configs/sim/nuscenes_camera.yaml   --kinematic_path /root/clone/HUGSIM-ORI/configs/sim/kinematic.yaml   --ad uniad   --ad_cuda 1
 
 
 CUDA_VISIBLE_DEVICES=0 pixi run python /root/clone/HUGSIM-ORI/closed_loop.py \
